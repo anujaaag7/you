@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Delivery</title>
+    <style>
+        /* --- GLOBAL STYLES --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            background-color: #2c3e50;
+        }
+
+        /* --- SCREEN 1: THE ENVELOPE --- */
+        #intro-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 1s ease-out;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .envelope-wrapper:hover { transform: scale(1.05); }
+
+        .envelope {
+            width: 300px;
+            height: 200px;
+            background-color: #e0e0e0;
+            position: relative;
+            border-radius: 5px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 110px solid #dcdcdc;
+            transform-origin: top;
+            transition: transform 0.6s ease-in-out, z-index 0.6s;
+            z-index: 5;
+        }
+
+        .pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 100px solid #f5f5f5;
+            z-index: 4;
+        }
+
+        .seal {
+            position: absolute;
+            top: -90px; 
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 40px;
+            color: #c0392b;
+            z-index: 6;
+            transition: opacity 0.4s;
+        }
+
+        .intro-text {
+            color: #ecf0f1;
+            margin-top: 50px;
+            font-size: 1.1rem;
+            text-align: center;
+            animation: pulseText 2s infinite;
+        }
+
+        .open-flap { transform: rotateX(180deg); z-index: 1; }
+        .fade-seal { opacity: 0; }
+
+        @keyframes pulseText {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* --- SCREEN 2: MAIN CONTENT --- */
+        #main-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            opacity: 0;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fff5f5 0%, #fedada 100%);
+            transition: opacity 2s ease-in;
+            pointer-events: none;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+        }
+
+        .heart {
+            background-color: #ff4d4d;
+            display: inline-block;
+            height: 50px;
+            margin: 0 10px;
+            position: relative;
+            transform: rotate(-45deg);
+            width: 50px;
+            animation: heartbeat 1.2s infinite;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+        }
+
+        .heart:before, .heart:after {
+            content: "";
+            background-color: #ff4d4d;
+            border-radius: 50%;
+            height: 50px;
+            position: absolute;
+            width: 50px;
+        }
+        .heart:before { top: -25px; left: 0; }
+        .heart:after { left: 25px; top: 0; }
+
+        @keyframes heartbeat {
+            0% { transform: rotate(-45deg) scale(1); }
+            14% { transform: rotate(-45deg) scale(1.3); }
+            28% { transform: rotate(-45deg) scale(1); }
+            42% { transform: rotate(-45deg) scale(1.3); }
+            70% { transform: rotate(-45deg) scale(1); }
+        }
+
+        h1 {
+            color: #d63031;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+        }
+
+        #message-box {
+            margin-top: 30px;
+            min-height: 120px;
+            color: #2d3436;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            word-spacing: 4px; /* Explicit spacing between words */
+            font-style: italic;
+            max-width: 85vw;
+            padding: 10px;
+            white-space: pre-wrap; /* Crucial for preserving spaces and wrapping */
+            word-wrap: break-word;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .instruction {
+            font-size: 0.8rem;
+            color: #b2bec3;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="meherbani.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="intro-screen">
+        <div class="envelope-wrapper" onclick="openLetter()">
+            <div class="envelope">
+                <div class="flap" id="flap"><div class="seal" id="seal">❤</div></div>
+                <div class="pocket"></div>
+            </div>
+        </div>
+        <p class="intro-text">A special delivery for you...</p>
+    </div>
+
+    <div id="main-screen">
+        <div class="container">
+            <h1>THOUGHTS OF YOU</h1>
+            <div class="heart" onclick="showNextMessage()"></div>
+            <div id="message-box"></div>
+            <p class="instruction">(Tap the heart for a new thought)</p>
+        </div>
+    </div>
+
+    <script>
+        const introScreen = document.getElementById('intro-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const flap = document.getElementById('flap');
+        const seal = document.getElementById('seal');
+        const audio = document.getElementById('bg-music');
+        const messageBox = document.getElementById("message-box");
+        
+        let isOpened = false;
+        let index = 0;
+        let isTyping = false; 
+
+        const messages = [
+            "I love the way you listen to me, even when I'm rambling.",
+            "I love how safe I feel just hearing your voice.",
+            "I love that you are my biggest supporter in everything I do.",
+            "I love your kindness—not just to me, but to everyone around you.",
+            "I love the way you look at me like I'm the only person in the room.",
+            "I love how you can make me laugh even when I'm having a bad day.",
+            "I love the way you handle my mood swings with so much patience.",
+            "I love that I can be 100% myself when I'm with you.",
+            "I love how you remember the tiny details I mention in passing.",
+            "I love your ambition and the way you work for your dreams.",
+            "I love how you make me feel like the most beautiful girl in the world.",
+            "I love your silly side that only I get to see.",
+            "I love the way you protect me and always have my back.",
+            "I love how you challenge me to be a better person every day.",
+            "I love the way you say my name.",
+            "I love your honesty and the way I can trust you with my life.",
+            "I love that you are my best friend and my partner all in one.",
+            "I love how you make even boring tasks feel like an adventure.",
+            "I love the way you love me—unconditionally and purely.",
+            "I love the person I am when I'm with you.",
+            "I love the way you laugh; it's my favorite sound.",
+            "I love you more than words can express.",
+            "Every time I hear 'Meherbani', I see your face.",
+            "Distance is just a number; my heart is right there with you.",
+            "I wish I could teleport to your side right now.",
+            "Counting down the minutes until I can hear your voice again.",
+            "I miss your scent and your warm hugs.",
+            "I miss looking into your eyes.",
+            "I miss your smile... the one that reaches your eyes.",
+            "I miss the way your hand fits perfectly in mine.",
+            "I miss our late-night conversations.",
+            "I miss our inside jokes.",
+            "I miss your presence more than anything.",
+            "Distance only makes me realize how much I need you.",
+            "My heart beats a little faster when I see your name on my screen.",
+            "I'm keeping your side of the bed warm.",
+            "I'm sending you a thousand virtual kisses.",
+            "Thinking of you is like a warm blanket on a cold day.",
+            "You are the best thing that ever happened to me.",
+            "You are my favorite thought, every single day.",
+            "You are my home, no matter where we are.",
+            "You're the first thing I think of when I wake up.",
+            "And the last thing I dream of at night.",
+            "You make even the hardest days feel easy.",
+            "You are the 'Meherbani' my soul was searching for.",
+            "Every love song makes sense now that I have you.",
+            "I'm so proud of everything you do.",
+            "You are the most beautiful soul I've ever known.",
+            "You are my sunshine on a rainy day.",
+            "You are my greatest adventure.",
+            "You're the piece of me I didn't know was missing.",
+            "You are worth every mile between us.",
+            "You are my dream come true.",
+            "I am so incredibly lucky to have you.",
+            "No amount of miles can change how I feel about you.",
+            "I'd wait a lifetime for just one more day with you.",
+            "I promise to always be by your side, even from afar.",
+            "I treasure every memory we've made.",
+            "And I can't wait to make a million more.",
+            "I can't wait to hold you and never let go.",
+            "I fall in love with you a little more every day.",
+            "You are my person, forever and always.",
+            "I love you today, tomorrow, and forever.",
+            "Thank you for being you."
+        ];
+
+        function openLetter() {
+            if (isOpened) return;
+            isOpened = true;
+            audio.volume = 0.5;
+            audio.play();
+            flap.classList.add('open-flap');
+            seal.classList.add('fade-seal');
+
+            setTimeout(() => {
+                introScreen.style.opacity = '0';
+                mainScreen.style.pointerEvents = 'auto';
+                mainScreen.style.opacity = '1';
+                setTimeout(() => {
+                    introScreen.style.display = 'none';
+                    showNextMessage();
+                }, 1000);
+            }, 800);
+        }
+
+        function showNextMessage() {
+            if (isTyping) return; 
+            
+            isTyping = true;
+            let currentText = messages[index];
+            messageBox.textContent = ""; // Use textContent for cleaner resets
+            let charIndex = 0;
+            
+            function type() {
+                if (charIndex < currentText.length) {
+                    messageBox.textContent += currentText.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(type, 35); 
+                } else {
+                    isTyping = false; 
+                }
+            }
+            type();
+            
+            index = (index + 1) % messages.length;
+        }
+    </script>
+</body>
+</html>
